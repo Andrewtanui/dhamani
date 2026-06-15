@@ -1,57 +1,65 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useAuth } from '@/hooks/useAuth'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
-import { CameraIcon, UserIcon, Loader2Icon, CheckIcon } from 'lucide-react'
+import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { CameraIcon, UserIcon, Loader2Icon, CheckIcon } from "lucide-react";
 
 export default function ProfilePage() {
-  const { profile, updateProfile, uploadProfilePicture, loading } = useAuth()
-  const [displayName, setDisplayName] = useState('')
-  const [bio, setBio] = useState('')
-  const [isEditing, setIsEditing] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-  const [isUploading, setIsUploading] = useState(false)
-  const [successMessage, setSuccessMessage] = useState('')
+  const { profile, updateProfile, uploadProfilePicture, loading } = useAuth();
+  const [displayName, setDisplayName] = useState("");
+  const [bio, setBio] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   // Initialize form data when profile loads
-  useState(() => {
+  useEffect(() => {
     if (profile) {
-      setDisplayName(profile.display_name || '')
-      setBio(profile.bio || '')
+      setDisplayName(profile.display_name || "");
+      setBio(profile.bio || "");
     }
-  })
+  }, [profile]);
 
   const handleSaveProfile = async () => {
-    setIsSaving(true)
-    setSuccessMessage('')
-    
-    const { error } = await updateProfile({ display_name: displayName, bio })
-    if (!error) {
-      setSuccessMessage('Profile updated successfully!')
-      setIsEditing(false)
-      setTimeout(() => setSuccessMessage(''), 3000)
-    }
-    setIsSaving(false)
-  }
+    setIsSaving(true);
+    setSuccessMessage("");
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-
-    setIsUploading(true)
-    setSuccessMessage('')
-    
-    const { error } = await uploadProfilePicture(file)
+    const { error } = await updateProfile({ display_name: displayName, bio });
     if (!error) {
-      setSuccessMessage('Profile picture updated!')
-      setTimeout(() => setSuccessMessage(''), 3000)
+      setSuccessMessage("Profile updated successfully!");
+      setIsEditing(false);
+      setTimeout(() => setSuccessMessage(""), 3000);
     }
-    setIsUploading(false)
-  }
+    setIsSaving(false);
+  };
+
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setSuccessMessage("");
+
+    const { error } = await uploadProfilePicture(file);
+    if (!error) {
+      setSuccessMessage("Profile picture updated!");
+      setTimeout(() => setSuccessMessage(""), 3000);
+    }
+    setIsUploading(false);
+  };
 
   if (loading) {
     return (
@@ -71,7 +79,7 @@ export default function ProfilePage() {
           </Card>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -82,7 +90,9 @@ export default function ProfilePage() {
         <Card className="max-w-2xl border-border/50 shadow-lg">
           <CardHeader>
             <CardTitle>Edit Profile</CardTitle>
-            <CardDescription>Update your profile information and picture</CardDescription>
+            <CardDescription>
+              Update your profile information and picture
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Success Message */}
@@ -122,13 +132,17 @@ export default function ProfilePage() {
                   />
                 </label>
               </div>
-              <p className="text-sm text-muted-foreground">Click to change profile picture</p>
+              <p className="text-sm text-muted-foreground">
+                Click to change profile picture
+              </p>
             </div>
 
             {/* Profile Form */}
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Display Name</label>
+                <label className="text-sm font-medium mb-2 block">
+                  Display Name
+                </label>
                 <Input
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
@@ -161,16 +175,16 @@ export default function ProfilePage() {
                           Saving...
                         </>
                       ) : (
-                        'Save Changes'
+                        "Save Changes"
                       )}
                     </Button>
                     <Button
                       variant="outline"
                       onClick={() => {
-                        setIsEditing(false)
+                        setIsEditing(false);
                         if (profile) {
-                          setDisplayName(profile.display_name || '')
-                          setBio(profile.bio || '')
+                          setDisplayName(profile.display_name || "");
+                          setBio(profile.bio || "");
                         }
                       }}
                     >
@@ -188,5 +202,5 @@ export default function ProfilePage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

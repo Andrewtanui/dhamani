@@ -41,7 +41,7 @@ export function useWishlist() {
         // Create default wishlist
         const { data: newWishlist, error: createError } = await supabase
           .from('wishlists')
-          .insert({ user_id: user.id })
+          .insert({ user_id: user.id } as unknown as never[])
           .select('id')
           .single()
 
@@ -103,7 +103,7 @@ export function useWishlist() {
       if (wishlists.length === 0) {
         const { data: newWishlist, error: createError } = await supabase
           .from('wishlists')
-          .insert({ user_id: user.id })
+          .insert({ user_id: user.id } as unknown as never[])
           .select('id')
           .single()
 
@@ -124,7 +124,7 @@ export function useWishlist() {
           product_image_url: product.image_url,
           product_price: product.price,
           retailer: product.retailer
-        })
+        } as unknown as never[])
 
       if (insertError) {
         // If columns don't exist, let's try to create them by checking the error

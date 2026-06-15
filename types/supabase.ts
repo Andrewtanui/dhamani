@@ -1,32 +1,52 @@
-import type { Profile, Category, Retailer, Product, RetailerName, AlertType } from './index'
+import type { Profile, Category, Retailer, Product, ProductRetailer, PriceHistory, UserTrackedProduct, Wishlist, WishlistItem, RetailerName, AlertType } from './index'
 
 export type Database = {
   public: {
     Tables: {
       profiles: {
         Row: Profile
-        Insert: Omit<Profile, 'created_at' | 'updated_at'> & {
-          created_at?: string
-          updated_at?: string
-        }
-        Update: Partial<Omit<Profile, 'id' | 'created_at'>> & {
-          updated_at?: string
-        }
+        Insert: Partial<Profile>
+        Update: Partial<Profile>
       }
       categories: {
         Row: Category
-        Insert: Omit<Category, 'created_at'> & { created_at?: string }
-        Update: Partial<Omit<Category, 'id' | 'created_at'>>
+        Insert: Partial<Category>
+        Update: Partial<Category>
       }
       retailers: {
         Row: Retailer
-        Insert: Omit<Retailer, 'created_at'> & { created_at?: string }
-        Update: Partial<Omit<Retailer, 'id' | 'created_at'>>
+        Insert: Partial<Retailer>
+        Update: Partial<Retailer>
       }
       products: {
         Row: Product
-        Insert: Omit<Product, 'created_at'> & { created_at?: string }
-        Update: Partial<Omit<Product, 'id' | 'created_at'>>
+        Insert: Partial<Product>
+        Update: Partial<Product>
+      }
+      product_retailers: {
+        Row: ProductRetailer
+        Insert: Partial<ProductRetailer>
+        Update: Partial<ProductRetailer>
+      }
+      price_history: {
+        Row: PriceHistory
+        Insert: Partial<PriceHistory>
+        Update: Partial<PriceHistory>
+      }
+      user_tracked_products: {
+        Row: UserTrackedProduct
+        Insert: Partial<UserTrackedProduct>
+        Update: Partial<UserTrackedProduct>
+      }
+      wishlists: {
+        Row: Wishlist
+        Insert: Partial<Wishlist>
+        Update: Partial<Wishlist>
+      }
+      wishlist_items: {
+        Row: WishlistItem
+        Insert: Partial<WishlistItem>
+        Update: Partial<WishlistItem>
       }
     }
     Views: {
@@ -36,7 +56,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      retailer_name: RetailerName
+      alert_type: AlertType
     }
   }
 }

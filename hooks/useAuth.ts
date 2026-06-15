@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import type { Profile } from '@/types'
+import type { Database } from '@/types/supabase'
 import { useEffect, useState, useCallback } from 'react'
 
 type AuthState = {
@@ -108,7 +109,7 @@ export function useAuth() {
       // Update profile in database
       const { data, error } = await supabase
         .from('profiles')
-        .update(updates)
+        .update(updates as unknown as never)
         .eq('id', state.user.id)
         .select()
         .single()
