@@ -3,8 +3,10 @@ import { KilimallScraper } from './kilimall.scraper'
 import { JijiScraper } from './jiji.scraper'
 import type { ScrapedProduct, RetailerName, SearchResult } from '@/types'
 
+type Scraper = JumiaScraper | KilimallScraper | JijiScraper
+
 export class ScraperManager {
-  private scrapers = {
+  private scrapers: Partial<Record<RetailerName, Scraper>> = {
     jumia: new JumiaScraper(),
     kilimall: new KilimallScraper(),
     jiji: new JijiScraper(),
@@ -22,7 +24,7 @@ export class ScraperManager {
         .filter(([name]) => retailersToSearch.includes(name as RetailerName))
         .map(async ([name, scraper]) => ({
           retailer: name as RetailerName,
-          products: await scraper.search(query),
+          products: await scraper!.search(query),
         }))
     )
 

@@ -5,48 +5,48 @@ export type Database = {
     Tables: {
       profiles: {
         Row: Profile
-        Insert: Partial<Profile>
-        Update: Partial<Profile>
+        Insert: Omit<Profile, 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Profile, 'id' | 'created_at' | 'updated_at'>>
       }
       categories: {
         Row: Category
-        Insert: Partial<Category>
-        Update: Partial<Category>
+        Insert: Omit<Category, 'created_at'>
+        Update: Partial<Omit<Category, 'id' | 'created_at'>>
       }
       retailers: {
         Row: Retailer
-        Insert: Partial<Retailer>
-        Update: Partial<Retailer>
+        Insert: Omit<Retailer, 'created_at'>
+        Update: Partial<Omit<Retailer, 'id' | 'created_at'>>
       }
       products: {
         Row: Product
-        Insert: Partial<Product>
-        Update: Partial<Product>
+        Insert: Omit<Product, 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Product, 'id' | 'created_at' | 'updated_at'>>
       }
       product_retailers: {
         Row: ProductRetailer
-        Insert: Partial<ProductRetailer>
-        Update: Partial<ProductRetailer>
+        Insert: Omit<ProductRetailer, 'created_at' | 'updated_at'>
+        Update: Partial<Omit<ProductRetailer, 'id' | 'created_at' | 'updated_at'>>
       }
       price_history: {
         Row: PriceHistory
-        Insert: Partial<PriceHistory>
-        Update: Partial<PriceHistory>
+        Insert: Omit<PriceHistory, 'id'>
+        Update: Partial<Omit<PriceHistory, 'id'>>
       }
       user_tracked_products: {
         Row: UserTrackedProduct
-        Insert: Partial<UserTrackedProduct>
-        Update: Partial<UserTrackedProduct>
+        Insert: Omit<UserTrackedProduct, 'id' | 'created_at'>
+        Update: Partial<Omit<UserTrackedProduct, 'id' | 'created_at'>>
       }
       wishlists: {
         Row: Wishlist
-        Insert: Partial<Wishlist>
-        Update: Partial<Wishlist>
+        Insert: Omit<Wishlist, 'id' | 'created_at'>
+        Update: Partial<Omit<Wishlist, 'id' | 'created_at'>>
       }
       wishlist_items: {
         Row: WishlistItem
-        Insert: Partial<WishlistItem>
-        Update: Partial<WishlistItem>
+        Insert: Omit<WishlistItem, 'id' | 'added_at'>
+        Update: Partial<Omit<WishlistItem, 'id' | 'added_at'>>
       }
     }
     Views: {

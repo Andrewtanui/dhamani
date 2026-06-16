@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from './useAuth'
-import type { ScrapedProduct, RetailerName } from '@/types'
+import type { ScrapedProduct, RetailerName, Wishlist, WishlistItem as WishlistItemType } from '@/types'
 
 type WishlistItem = {
   id: string
@@ -26,9 +26,8 @@ export function useWishlist() {
 
     setLoading(true)
     try {
-      // First check if user has a wishlist
-      const { data: wishlists, error: wishlistError } = await supabase
-        .from('wishlists')
+      const { data: wishlists, error: wishlistError } = await (supabase
+        .from('wishlists') as any)
         .select('id')
         .eq('user_id', user.id)
         .order('created_at', { ascending: true })
@@ -38,29 +37,27 @@ export function useWishlist() {
 
       let wishlistId: string
       if (wishlists.length === 0) {
-        // Create default wishlist
-        const { data: newWishlist, error: createError } = await supabase
-          .from('wishlists')
-          .insert({ user_id: user.id } as unknown as never[])
+        const { data: newWishlist, error: createError } = await (supabase
+          .from('wishlists') as any)
+          .insert({ user_id: user.id, name: 'My Wishlist', is_public: false })
           .select('id')
           .single()
 
         if (createError) throw createError
-        wishlistId = newWishlist.id
+        wishlistId = (newWishlist as Wishlist).id
       } else {
-        wishlistId = wishlists[0].id
+        wishlistId = (wishlists[0] as Wishlist).id
       }
 
-      // Get wishlist items
-      const { data, error } = await supabase
-        .from('wishlist_items')
+      const { data, error } = await (supabase
+        .from('wishlist_items') as any)
         .select('*')
         .eq('wishlist_id', wishlistId)
         .order('added_at', { ascending: false })
 
       if (error) throw error
 
-      setItems(data.map(item => ({
+      setItems((data as WishlistItemType[]).map(item => ({
         id: item.id,
         product_name: item.product_name,
         product_url: item.product_url,
@@ -76,7 +73,6 @@ export function useWishlist() {
     }
   }, [supabase, user, isAuthenticated])
 
-  // Check if a product is in wishlist
   const isInWishlist = useCallback((productUrl: string) => {
     return items.some(item => item.product_url === productUrl)
   }, [items])
@@ -89,9 +85,8 @@ export function useWishlist() {
 
     setLoading(true)
     try {
-      // Get or create wishlist
-      const { data: wishlists, error: wishlistError } = await supabase
-        .from('wishlists')
+      const { data: wishlists, error: wishlistError } = await (supabase
+        .from('wishlists') as any)
         .select('id')
         .eq('user_id', user.id)
         .order('created_at', { ascending: true })
@@ -101,22 +96,20 @@ export function useWishlist() {
 
       let wishlistId: string
       if (wishlists.length === 0) {
-        const { data: newWishlist, error: createError } = await supabase
-          .from('wishlists')
-          .insert({ user_id: user.id } as unknown as never[])
+        const { data: newWishlist, error: createError } = await (supabase
+          .from('wishlists') as any)
+          .insert({ user_id: user.id, name: 'My Wishlist', is_public: false })
           .select('id')
           .single()
 
         if (createError) throw createError
-        wishlistId = newWishlist.id
+        wishlistId = (newWishlist as Wishlist).id
       } else {
-        wishlistId = wishlists[0].id
+        wishlistId = (wishlists[0] as Wishlist).id
       }
 
-      // Check if we need to add columns to wishlist_items first
-      // We'll store scraped product directly
-      const { error: insertError } = await supabase
-        .from('wishlist_items')
+      const { error: insertError } = await (supabase
+        .from('wishlist_items') as any)
         .insert({
           wishlist_id: wishlistId,
           product_name: product.name,
@@ -124,13 +117,9 @@ export function useWishlist() {
           product_image_url: product.image_url,
           product_price: product.price,
           retailer: product.retailer
-        } as unknown as never[])
+        })
 
-      if (insertError) {
-        // If columns don't exist, let's try to create them by checking the error
-        // We'll need a migration for this
-        throw insertError
-      }
+      if (insertError) throw insertError
 
       await fetchWishlist()
       return true
@@ -150,8 +139,8 @@ export function useWishlist() {
 
     setLoading(true)
     try {
-      const { error } = await supabase
-        .from('wishlist_items')
+      const { error } = await (supabase
+        .from('wishlist_items') as any)
         .delete()
         .eq('id', item.id)
 

@@ -3,7 +3,6 @@
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import type { Profile } from '@/types'
-import type { Database } from '@/types/supabase'
 import { useEffect, useState, useCallback } from 'react'
 
 type AuthState = {
@@ -103,51 +102,49 @@ export function useAuth() {
   )
 
   const updateProfile = useCallback(
-    async (updates: Partial<Profile>) => {
-      if (!state.user) throw new Error('No user logged in')
+    async (updates: Partial<Omit<Profile, 'id' | 'created_at' | 'updated_at'>>) => {
+      if (!state.user) return { error: new Error('Not authenticated') }
 
-      // Update profile in database
-      const { data, error } = await supabase
-        .from('profiles')
-        .update(updates as unknown as never)
+      const { error } = await (supabase
+        .from('profiles') as any)
+        .update(updates)
         .eq('id', state.user.id)
         .select()
         .single()
 
-      if (error) return { error }
+      if (!error) {
+        const updatedProfile = await fetchProfile(state.user.id)
+        setState(prev => ({ ...prev, profile: updatedProfile }))
+      }
 
-      // Update local state
-      setState(prev => ({
-        ...prev,
-        profile: data as Profile,
-      }))
-
-      return { data: data as Profile }
+      return { error }
     },
-    [supabase, state.user]
+    [supabase, state.user, fetchProfile]
   )
 
   const uploadProfilePicture = useCallback(
     async (file: File) => {
-      if (!state.user) throw new Error('No user logged in')
+      if (!state.user) return { error: new Error('Not authenticated') }
 
-      // Upload file to storage
       const fileExt = file.name.split('.').pop()
       const fileName = `${state.user.id}-${Date.now()}.${fileExt}`
-      const { error: uploadError } = await supabase.storage
+      const filePath = `avatars/${fileName}`
+
+      const { error: uploadError } = await supabase
+        .storage
         .from('avatars')
-        .upload(fileName, file, { upsert: true })
+        .upload(filePath, file, { upsert: true })
 
       if (uploadError) return { error: uploadError }
 
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
+      const { data: { publicUrl } } = supabase
+        .storage
         .from('avatars')
-        .getPublicUrl(fileName)
+        .getPublicUrl(filePath)
 
-      // Update profile with avatar URL
-      const { data, error } = await updateProfile({ avatar_url: publicUrl })
-      return { data, error }
+      const { error: updateError } = await updateProfile({ avatar_url: publicUrl })
+
+      return { error: updateError }
     },
     [supabase, state.user, updateProfile]
   )
@@ -161,6 +158,6 @@ export function useAuth() {
     signInWithGitHub,
     signOut,
     updateProfile,
-    uploadProfilePicture,
+    uploadProfilePicture
   }
 }
