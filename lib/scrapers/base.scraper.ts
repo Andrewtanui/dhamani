@@ -16,7 +16,6 @@ const DEFAULT_CONFIG: Required<ScraperConfig> = {
   maxRetries: Number(process.env.SCRAPING_MAX_RETRIES) || 2,
 }
 
-// Rotate through realistic user agents
 const USER_AGENTS = [
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
@@ -36,7 +35,6 @@ export abstract class BaseScraper {
     this.http = axios.create({
       timeout: this.config.timeout,
       headers: {
-        'User-Agent': this.randomUserAgent(),
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
         'Accept-Language': 'en-US,en;q=0.9',
         'Accept-Encoding': 'gzip, deflate, br',
@@ -46,18 +44,13 @@ export abstract class BaseScraper {
         'Sec-Fetch-Dest': 'document',
         'Sec-Fetch-Mode': 'navigate',
         'Sec-Fetch-Site': 'none',
-        'Cache-Control': 'max-age=0'
+        'Cache-Control': 'max-age=0',
       },
     })
   }
 
-  /** Search a retailer for products matching a query */
   abstract search(query: string): Promise<ScrapedProduct[]>
-
-  /** Fetch the current price for a known product URL */
   abstract scrapePrice(url: string): Promise<Pick<ScrapedProduct, 'price' | 'original_price' | 'is_in_stock' | 'is_on_sale'> | null>
-
-  // ── Helpers ──────────────────────────────────────────────
 
   protected async fetchHtml(url: string): Promise<cheerio.CheerioAPI> {
     let lastError: Error | null = null
@@ -66,16 +59,35 @@ export abstract class BaseScraper {
       try {
         await this.randomDelay()
         const { data, status } = await this.http.get<string>(url, {
-          headers: { 'User-Agent': this.randomUserAgent() },
+          headers: {
+            'User-Agent': this.randomUserAgent(),
+            'Cookie': 'cookie_consent=accepted; jumia_consent=1; _gcl_au=1.1.1234567890.1234567890',
+            'Referer': 'https://www.jumia.co.ke',
+          },
         })
+
         console.log(`[BaseScraper] fetched ${url}, status: ${status}`)
-        console.log(`[BaseScraper] HTML preview (first 2000 chars): ${data.substring(0, 2000)}`)
+        console.log(`[BaseScraper] response length: ${data.length}`)
+
+        const titleMatch = data.match(/<title>(.*?)<\/title>/i)
+        console.log(`[BaseScraper] page title: ${titleMatch?.[1]}`)
+
+        if (data.length < 50000) {
+          console.warn('[BaseScraper] small response — possibly a consent/block page')
+        }
+
+        const hasProducts =
+          data.includes('data-catalog-id') ||
+          data.includes('"prd"') ||
+          data.includes('article')
+        console.log(`[BaseScraper] raw HTML has product markers: ${hasProducts}`)
+
         return cheerio.load(data)
       } catch (err) {
         lastError = err as Error
         console.error(`[BaseScraper] attempt ${attempt} failed for ${url}:`, err)
         if (attempt < this.config.maxRetries) {
-          await this.sleep(attempt * 1000) // back-off
+          await this.sleep(attempt * 1000)
         }
       }
     }
@@ -85,7 +97,6 @@ export abstract class BaseScraper {
 
   protected parsePrice(raw: string | undefined | null): number | null {
     if (!raw) return null
-    // Strip currency symbols: KES, KSh, Ksh, KSH, Kshs, commas, spaces
     const cleaned = raw
       .replace(/KShs?\.?|KSH|KSh|Ksh|Kes|KES/gi, '')
       .replace(/[,\s]/g, '')
