@@ -36,6 +36,11 @@ export class ScraperManager {
       } else {
         const err = result.reason as Error
         console.error('[ScraperManager] retailer error:', err.message)
+        // Find which retailer this is by checking settled order
+        const index = settled.indexOf(result)
+        const retailerName = (Object.entries(this.scrapers)
+          .filter(([name]) => retailersToSearch.includes(name as RetailerName))[index]?.[0] || 'unknown') as RetailerName
+        retailer_errors[retailerName] = err.message
       }
     }
 

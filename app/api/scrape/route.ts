@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import type { RetailerName } from '@/types'
 
+export const maxDuration = 10
+
 const bodySchema = z.object({
   retailer: z.enum(['jumia', 'kilimall', 'jiji']),
   url: z.string().url(),

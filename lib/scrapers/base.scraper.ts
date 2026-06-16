@@ -10,10 +10,10 @@ export interface ScraperConfig {
 }
 
 const DEFAULT_CONFIG: Required<ScraperConfig> = {
-  timeout: Number(process.env.SCRAPING_TIMEOUT_MS) || 8000,
-  delayMin: Number(process.env.SCRAPING_DELAY_MIN_MS) || 500,
-  delayMax: Number(process.env.SCRAPING_DELAY_MAX_MS) || 1500,
-  maxRetries: Number(process.env.SCRAPING_MAX_RETRIES) || 2,
+  timeout: Number(process.env.SCRAPING_TIMEOUT_MS) || 5000,
+  delayMin: Number(process.env.SCRAPING_DELAY_MIN_MS) || 200,
+  delayMax: Number(process.env.SCRAPING_DELAY_MAX_MS) || 500,
+  maxRetries: Number(process.env.SCRAPING_MAX_RETRIES) || 1,
 }
 
 const USER_AGENTS = [

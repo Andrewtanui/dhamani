@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import type { RetailerName } from '@/types'
 
+export const maxDuration = 10
+
 const querySchema = z.object({
   q: z.string().min(2, 'Query must be at least 2 characters').max(100),
   retailers: z.string().optional().nullable(),
