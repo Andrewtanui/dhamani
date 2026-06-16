@@ -25,10 +25,8 @@ export class JijiScraper extends BaseScraper {
     const self = this
 
     const productSelectors = [
-      'article[class*="b-list-advert"]',
       '.qa-advert-list-item',
-      '[class*="advert-list"]',
-      '[class*="list-advert"]',
+      '[class*="b-list-advert-base"]'
     ]
 
     let foundSelector = null
@@ -50,9 +48,9 @@ export class JijiScraper extends BaseScraper {
       const card = $(el as Parameters<typeof $>[0])
 
       const nameSelectors = [
-        '[class*="title"]',
-        'h3',
-        'h2',
+        '.qa-advert-title',
+        '.b-advert-title-inner',
+        '[class*="title"]'
       ]
       let name = ''
       for (const selector of nameSelectors) {
@@ -71,8 +69,8 @@ export class JijiScraper extends BaseScraper {
       if (!name || !productUrl) return
 
       const priceSelectors = [
-        '[class*="price"]',
         '.qa-advert-price',
+        '[class*="price"]'
       ]
       let priceRaw = ''
       for (const selector of priceSelectors) {

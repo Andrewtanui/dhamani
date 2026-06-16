@@ -60,12 +60,15 @@ export abstract class BaseScraper {
     for (let attempt = 1; attempt <= this.config.maxRetries; attempt++) {
       try {
         await this.randomDelay()
-        const { data } = await this.http.get<string>(url, {
+        const { data, status } = await this.http.get<string>(url, {
           headers: { 'User-Agent': this.randomUserAgent() },
         })
+        console.log(`[BaseScraper] fetched ${url}, status: ${status}`)
+        console.log(`[BaseScraper] HTML preview (first 2000 chars): ${data.substring(0, 2000)}`)
         return cheerio.load(data)
       } catch (err) {
         lastError = err as Error
+        console.error(`[BaseScraper] attempt ${attempt} failed for ${url}:`, err)
         if (attempt < this.config.maxRetries) {
           await this.sleep(attempt * 1000) // back-off
         }

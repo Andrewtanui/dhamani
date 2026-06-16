@@ -25,10 +25,7 @@ export class JumiaScraper extends BaseScraper {
     const self = this
 
     const productSelectors = [
-      'article.prd',
-      '[class*="prd"]',
-      '[class*="product"]',
-      '.product-card',
+      'article.prd'
     ]
 
     let foundSelector = null
@@ -49,7 +46,10 @@ export class JumiaScraper extends BaseScraper {
     $(foundSelector).each((_, el) => {
       const card = $(el as Parameters<typeof $>[0])
 
-      const nameSelectors = ['.name', 'h3', 'h2', '[class*="name"]', '[class*="title"]']
+      const nameSelectors = [
+        '.name',
+        'h3'
+      ]
       let name = ''
       for (const selector of nameSelectors) {
         const text = card.find(selector).first().text().trim()
@@ -59,7 +59,9 @@ export class JumiaScraper extends BaseScraper {
         }
       }
 
-      const linkSelectors = ['a.core', 'a[class*="core"]', 'a[href]']
+      const linkSelectors = [
+        'a.core'
+      ]
       let href = null
       for (const selector of linkSelectors) {
         const attr = card.find(selector).first().attr('href')
@@ -72,7 +74,9 @@ export class JumiaScraper extends BaseScraper {
 
       if (!name || !productUrl) return
 
-      const priceSelectors = ['.prc', '[class*="price"]', '[class*="prc"]']
+      const priceSelectors = [
+        '.prc'
+      ]
       let priceRaw = ''
       for (const selector of priceSelectors) {
         const text = card.find(selector).first().text().trim()
@@ -82,7 +86,9 @@ export class JumiaScraper extends BaseScraper {
         }
       }
 
-      const originalSelectors = ['.old', '[class*="old"]', '[class*="original"]']
+      const originalSelectors = [
+        '.old'
+      ]
       let originalRaw = ''
       for (const selector of originalSelectors) {
         const text = card.find(selector).first().text().trim()

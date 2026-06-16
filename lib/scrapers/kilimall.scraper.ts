@@ -25,10 +25,7 @@ export class KilimallScraper extends BaseScraper {
     const self = this
 
     const productSelectors = [
-      '.goods-item',
-      '.product-item',
-      '[class*="goods"]',
-      '[class*="product"]',
+      '.product-item'
     ]
 
     let foundSelector = null
@@ -50,12 +47,7 @@ export class KilimallScraper extends BaseScraper {
       const card = $(el as Parameters<typeof $>[0])
 
       const nameSelectors = [
-        '.goods-title',
-        '.product-name',
-        '[class*="title"]',
-        '[class*="name"]',
-        'h3',
-        'h2',
+        '.product-title'
       ]
       let name = ''
       for (const selector of nameSelectors) {
@@ -74,9 +66,7 @@ export class KilimallScraper extends BaseScraper {
       if (!name || !productUrl) return
 
       const priceSelectors = [
-        '.goods-price',
-        '.price',
-        '[class*="price"]',
+        '.product-price'
       ]
       let priceRaw = ''
       for (const selector of priceSelectors) {
@@ -87,38 +77,21 @@ export class KilimallScraper extends BaseScraper {
         }
       }
 
-      const originalSelectors = [
-        '.origin-price',
-        '.old-price',
-        '[class*="origin"]',
-        '[class*="old"]',
-      ]
-      let originalRaw = ''
-      for (const selector of originalSelectors) {
-        const text = card.find(selector).first().text().trim()
-        if (text) {
-          originalRaw = text
-          break
-        }
-      }
-
       let imageUrl = null
       const imgEl = card.find('img').first()
       imageUrl = imgEl.attr('data-src') ?? imgEl.attr('src') ?? imgEl.attr('data-image') ?? null
 
       const price = self.parsePrice(priceRaw)
-      const original_price = self.parsePrice(originalRaw)
-      const is_on_sale = !!original_price && !!price && original_price > price
 
       products.push({
         name,
         url: productUrl,
         price,
-        original_price: original_price ?? null,
+        original_price: null,
         image_url: imageUrl,
         is_in_stock: true,
-        is_on_sale,
-        discount_pct: self.discountPct(price, original_price),
+        is_on_sale: false,
+        discount_pct: null,
         rating: null,
         review_count: null,
         retailer: 'kilimall',

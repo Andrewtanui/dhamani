@@ -5,7 +5,7 @@ import type { RetailerName } from '@/types'
 
 const querySchema = z.object({
   q: z.string().min(2, 'Query must be at least 2 characters').max(100),
-  retailers: z.string().optional().default('["jumia","kilimall","jiji"]'),
+  retailers: z.string().optional().nullable(),
 })
 
 export async function GET(request: NextRequest) {
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
   try {
     let retailers: RetailerName[]
     try {
-      retailers = JSON.parse(parsed.data.retailers)
+      retailers = parsed.data.retailers ? JSON.parse(parsed.data.retailers) : ['jumia', 'kilimall', 'jiji']
     } catch {
       retailers = ['jumia', 'kilimall', 'jiji']
     }
